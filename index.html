@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initinal WP03 Warehouse</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js and DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body class="light-theme">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-cube logo-icon"></i>
+                    <h2>Initinal WP03 <span class="highlight">Warehouse</span></h2>
+                </div>
+            </div>
+
+            <!-- File Upload Area inside Sidebar -->
+            <div class="upload-section">
+                <p class="upload-title">Connect Data</p>
+                <div class="upload-box" id="dropArea">
+                    <input type="file" id="csvFileInput" accept=".csv" class="file-input" />
+                    <label for="csvFileInput" class="file-label">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Upload CSV File</span>
+                    </label>
+                    <p class="file-status" id="fileStatus">No file loaded</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><i class="fa-solid fa-chart-pie"></i> Overview</li>
+                    <li><i class="fa-solid fa-layer-group"></i> Categories</li>
+                    <li><i class="fa-solid fa-building"></i> Departments</li>
+                    <li><i class="fa-solid fa-clock-rotate-left"></i> History</li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">Admin</div>
+                    <span>System User</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1>Initinal WP03 Warehouse</h1>
+                    <p class="subtitle">February 2025 Analytics <span id="dataLoadedBadge" class="badge hidden">Data
+                            Active</span></p>
+                </div>
+                <div class="header-actions">
+                    <div class="date-display" id="currentDate"></div>
+                </div>
+            </header>
+
+            <!-- Initial State Message -->
+            <div id="emptyState" class="empty-state">
+                <div class="pulse-ring"></div>
+                <i class="fa-solid fa-chart-line"></i>
+                <h2>Waiting for Data</h2>
+                <p>Please upload the "Issuance February-2025.csv" file from the sidebar to visualize analytics.</p>
+            </div>
+
+            <!-- Dashboard Charts Container -->
+            <div id="dashboardData" class="dashboard-data hidden">
+                <!-- KPI Cards -->
+                <section class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); gap: 16px;">
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Total Materials (Unique)</p>
+                            <h3 class="kpi-value" id="kpiUnique" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Total Quantity</p>
+                            <h3 class="kpi-value" id="kpiQty" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Total Value</p>
+                            <h3 class="kpi-value" id="kpiValue" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Total Transactions</p>
+                            <h3 class="kpi-value" id="kpiTrans" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Moving Materials</p>
+                            <h3 class="kpi-value" id="kpiMoving" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Non-Moving Materials</p>
+                            <h3 class="kpi-value" id="kpiNonMoving" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Avg Daily Qty</p>
+                            <h3 class="kpi-value" id="kpiAvgQty" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Avg Daily Value</p>
+                            <h3 class="kpi-value" id="kpiAvgVal" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Highest Single Day Value</p>
+                            <h3 class="kpi-value" id="kpiHighVal" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="padding: 16px; gap: 12px;">
+                        <div class="kpi-details">
+                            <p class="kpi-label" style="font-size: 11px;">Lowest Single Day Value</p>
+                            <h3 class="kpi-value" id="kpiLowVal" style="font-size: 20px;">0</h3>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Top Charts: Weekly Trend -->
+                <section class="charts-grid-bottom" style="grid-template-columns: 1fr;">
+                    <!-- Weekly Trend Qty -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Weekly Material Issuance Quantity Trend</h3>
+                            <p class="chart-subtitle">Measured in Units</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyQtyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Trend Value -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Weekly Material Issuance Value Trend</h3>
+                            <p class="chart-subtitle">Measured in SAR</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="weeklyValueChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Daily Trend -->
+                <section class="charts-grid-bottom mt-4" style="grid-template-columns: 1fr;">
+                    <!-- Daily Trend Qty -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Daily Material Issuance Quantity Trend</h3>
+                            <p class="chart-subtitle">Measured in Units</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dailyQtyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Daily Trend Value -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Daily Material Issuance Value Trend</h3>
+                            <p class="chart-subtitle">Measured in SAR</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dailyValueChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Department Consumption -->
+                <section class="charts-grid-bottom mt-4">
+                    <!-- Dept Qty -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Top 10 Consuming Departments by Issuance Quantity</h3>
+                            <p class="chart-subtitle">Measured in Units</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="deptQtyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Dept Value -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Top 10 Consuming Departments by Issuance Value</h3>
+                            <p class="chart-subtitle">Measured in SAR</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="deptValueChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fast Moving Materials -->
+                <section class="charts-grid-bottom mt-4">
+                    <!-- Material Qty -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Top 10 Fast Moving Materials by Issued Quantity</h3>
+                            <p class="chart-subtitle">Measured in Units</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="materialQtyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Material Value -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Top 10 Fast Moving Materials by Issued Value</h3>
+                            <p class="chart-subtitle">Measured in SAR</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="materialValueChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Warehouse Staff Activity -->
+                <section class="charts-grid-bottom mt-4" style="grid-template-columns: 1fr;">
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header text-center block w-full">
+                            <h3 class="font-bold">Material Issuance Distribution by Storekeeper</h3>
+                            <p class="chart-subtitle">Measured in Units</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="storekeeperChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
